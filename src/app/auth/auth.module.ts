@@ -7,6 +7,8 @@ import { emailVerificationProviders } from "./email-verification/emailVerificati
 import { JwtModule } from "@nestjs/jwt";
 import { jwtConstants } from "./constant";
 import {starlingProviders} from "./starling/starling.providers";
+import {FirebaseStorageService} from "../../utils/firebaseStorage";
+import {MulterModule} from "@nestjs/platform-express";
 
 @Module({
     imports: [
@@ -17,9 +19,11 @@ import {starlingProviders} from "./starling/starling.providers";
             signOptions: {
                 expiresIn: '1 days'
             }
+        }),
+        MulterModule.register({
         })
     ],
     controllers : [AuthController],
-    providers : [AuthService, ...authProviders, ...emailVerificationProviders, ...starlingProviders]
+    providers : [AuthService, ...authProviders, ...emailVerificationProviders, ...starlingProviders,FirebaseStorageService]
 })
 export class AuthModule{}

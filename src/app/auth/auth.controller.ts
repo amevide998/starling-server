@@ -20,12 +20,14 @@ import {ApiBody, ApiConsumes, ApiTags} from "@nestjs/swagger";
 import {CreateStarlingDto} from "../../dto/createStarling.dto";
 import {Express} from "express";
 import {FileInterceptor} from "@nestjs/platform-express";
+import {FirebaseStorageService} from "../../utils/firebaseStorage";
 
 @Controller("auth")
 @ApiTags("auth - user")
 export class AuthController{
 
-    constructor(private authService: AuthService){};
+    constructor(private authService: AuthService
+    ){};
 
     @Post("signup")
     @HttpCode(HttpStatus.CREATED)
@@ -75,13 +77,12 @@ export class AuthController{
     })
     @ApiConsumes("multipart/form-data")
     @UseInterceptors(FileInterceptor('image'))
-    async registerStarling(@UploadedFile()  image: Express.Multer.File,@Body() createStarlingUserDto: CreateStarlingDto, @Res() res: Response ){
-        return "belum selesai di kerjain backend nya wkwk"
-        // const result = await this.authService.registerStarling(createStarlingUserDto, image);
+    async registerStarling(@UploadedFile()  image: Express.Multer.File ,@Body() createStarlingUserDto: CreateStarlingDto, @Res() res: Response ){
+        // return "belum selesai di kerjain backend nya wkwk"
+        const result = await this.authService.registerStarling(createStarlingUserDto, image);
 
-
-        // return res.status(HttpStatus.CREATED)
-        //     .json(new WebResponse(HttpStatus.CREATED, "success, please wait approved from admin", result, null));
+        return res.status(HttpStatus.CREATED)
+            .json(new WebResponse(HttpStatus.CREATED, "success, please wait approved from admin", result, null));
 
     }
 
