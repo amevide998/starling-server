@@ -6,6 +6,7 @@ import { authProviders } from "./auth.providers";
 import { emailVerificationProviders } from "./email-verification/emailVerification.providers";
 import { JwtModule } from "@nestjs/jwt";
 import { jwtConstants } from "./constant";
+import {starlingProviders} from "./starling/starling.providers";
 
 @Module({
     imports: [
@@ -19,6 +20,6 @@ import { jwtConstants } from "./constant";
         })
     ],
     controllers : [AuthController],
-    providers : [AuthService, ...authProviders, ...emailVerificationProviders]
+    providers : [AuthService, ...authProviders, ...emailVerificationProviders, ...starlingProviders]
 })
 export class AuthModule{}

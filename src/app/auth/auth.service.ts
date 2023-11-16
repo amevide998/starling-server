@@ -1,5 +1,5 @@
 import { BadRequestException, Inject, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
-import { Model } from "mongoose";
+import {Model, Schema} from "mongoose";
 import { User } from "./user/user.interface";
 import { CreateUserDto } from "../../dto/createUser.dto";
 import * as bcrypt from 'bcrypt';
@@ -9,6 +9,8 @@ import { EmailVerification } from "./email-verification/emailVerification.interf
 import { v4 } from "uuid";
 import { LoginUserDto } from "../../dto/loginUser.dto";
 import { JwtService } from "@nestjs/jwt";
+import {CreateStarlingDto} from "../../dto/createStarling.dto";
+import {Starling} from "./starling/starling.interface";
 
 @Injectable()
 export class AuthService{
@@ -18,6 +20,9 @@ export class AuthService{
 
         @Inject('VERIFICATION_MODEL')
         private verificationModel: Model<EmailVerification>,
+
+        @Inject('STARLING_MODEL')
+        private starlingModel: Model<Starling>,
 
         private jwtService: JwtService
     ) {}
@@ -147,4 +152,44 @@ export class AuthService{
         }
     }
 
+    async registerStarling(createStarlingUserDto: CreateStarlingDto) {
+        const userDb = await this.userModel.findOne({email: createStarlingUserDto.email})
+
+        if(!userDb){
+            throw new NotFoundException("email and password doesn't match")
+        }
+
+        // verify password
+        if(!bcrypt.compareSync(createStarlingUserDto.password.toString(), userDb.hash.toString())){
+            throw new BadRequestException("email and password doesn't match")
+        }
+
+        const createdStarling = {
+            userId: userDb._id,
+            starlingName: createStarlingUserDto.starlingName,
+            longitude: createStarlingUserDto.longitude,
+            latitude: createStarlingUserDto.latitude,
+            lastUpdate: new Date(),
+            image: createStarlingUserDto.image,
+            verified: false
+        }
+
+        // save starling form
+
+        const starlingDb = await this.starlingModel.findOne({userId: userDb._id});
+        if(starlingDb){
+            if(starlingDb.verified){
+                throw new BadRequestException("starling already exists, wait for approved from admin")
+            }
+            throw new BadRequestException("starling already registered");
+        }
+
+        try{
+            const starling = new this.starlingModel(createdStarling)
+            await starling.save();
+        }catch (err){
+            console.log(`something error when create starling : ${err}`)
+        }
+
+    }
 }

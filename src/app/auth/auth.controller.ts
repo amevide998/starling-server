@@ -17,9 +17,10 @@ import { WebResponse } from "../../utils/webResponse";
 import { LoginUserDto } from "../../dto/loginUser.dto";
 import {AuthGuard} from "./auth.guard";
 import {ApiBody, ApiTags} from "@nestjs/swagger";
+import {CreateStarlingDto} from "../../dto/createStarling.dto";
 
 @Controller("auth")
-@ApiTags("auth")
+@ApiTags("auth - user")
 export class AuthController{
 
     constructor(private authService: AuthService){};
@@ -50,7 +51,6 @@ export class AuthController{
     }
 
 
-
     @Post("signin")
     @UsePipes(new ValidationPipe({transform: true}))
     @HttpCode(HttpStatus.OK)
@@ -63,4 +63,20 @@ export class AuthController{
         return res.status(HttpStatus.OK)
             .json(new WebResponse(HttpStatus.OK, "success login", token, null))
     }
+
+    @Post("register-starling")
+    @HttpCode(HttpStatus.CREATED)
+    @UsePipes(new ValidationPipe({transform: true}))
+    @ApiBody({
+        description: 'user login',
+        type: CreateStarlingDto
+    })
+    async registerStarling(@Body() createStarlingUserDto: CreateStarlingDto, @Res() res: Response ){
+        const result = await this.authService.registerStarling(createStarlingUserDto);
+        return res.status(HttpStatus.CREATED)
+            .json(new WebResponse(HttpStatus.CREATED, "success, please wait approved from admin", result, null));
+
+    }
+
+
 }
