@@ -44,6 +44,7 @@ export class AuthService{
             }
             // save verification to database
             try{
+                await this.verificationModel.deleteMany({userId: user._id.toString()});
                 const createdEmailVerification = new this.verificationModel(emailVerification)
                 await createdEmailVerification.save();
             }catch (err){
@@ -55,6 +56,7 @@ export class AuthService{
         }
         return new CreateUserResponseDto(user.email);
     }
+
 
     async verify(userId: string, uniqueString: string){
         // cek user exists
@@ -91,9 +93,36 @@ export class AuthService{
         if(!userDb){
             throw new BadRequestException(`email & password doesn't match`);
         }
+
         // cek password
         if(bcrypt.compareSync(request.password.toString(), userDb.hash.toString())){
             console.log(`password match user - ${request.email}`);
+
+            try{
+                const uniqueString = v4() + userDb._id.toString();
+                const emailVerification: EmailVerification = {
+                    userId: userDb._id.toString(),
+                    uniqueString: uniqueString,
+                    createdAt: Date.now(),
+                    expiresAt: Date.now() + 21600000
+                }
+                // save verification to database
+                try{
+                    await this.verificationModel.deleteMany({userId: userDb._id.toString()});
+                    const createdEmailVerification = new this.verificationModel(emailVerification)
+                    await createdEmailVerification.save();
+                }catch (err){
+                    console.error(`something error while save email verification to database`)
+                }
+                await sendMail(userDb._id.toString(),uniqueString,userDb.email.toString())
+            }catch (err){
+                console.error(`something wrong while send email :  ${err}`)
+            }
+
+            if(!userDb.verified){
+                throw new UnauthorizedException(`email is not verified , another verify has been send to your email`);
+            }
+
             const payload = {sub: userDb._id, email: userDb.email};
 
             return {
