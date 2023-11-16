@@ -16,9 +16,10 @@ import { Response } from 'express';
 import { WebResponse } from "../../utils/webResponse";
 import { LoginUserDto } from "../../dto/loginUser.dto";
 import {AuthGuard} from "./auth.guard";
-import {ApiBody} from "@nestjs/swagger";
+import {ApiBody, ApiTags} from "@nestjs/swagger";
 
 @Controller("auth")
+@ApiTags("auth")
 export class AuthController{
 
     constructor(private authService: AuthService){};
@@ -46,11 +47,17 @@ export class AuthController{
         }catch (err){
             throw new InternalServerErrorException(`Something bad happen`);
         }
-
     }
+
+
+
     @Post("signin")
     @UsePipes(new ValidationPipe({transform: true}))
-    @UseGuards(AuthGuard)
+    @HttpCode(HttpStatus.OK)
+    @ApiBody({
+        description: 'user login',
+        type: LoginUserDto
+    })
     async signin(@Body() request: LoginUserDto, @Res() res: Response){
         const token = await this.authService.signin(request);
         return res.status(HttpStatus.OK)
