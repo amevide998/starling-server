@@ -4,9 +4,9 @@ import {
     Controller, Get,
     HttpCode,
     HttpException,
-    HttpStatus, InternalServerErrorException, Param,
+    HttpStatus, InternalServerErrorException, MaxFileSizeValidator, Param, ParseFilePipe,
     Post,
-    Res, UseGuards,
+    Res, UploadedFile, UseGuards, UseInterceptors,
     UsePipes,
     ValidationPipe
 } from "@nestjs/common";
@@ -16,8 +16,10 @@ import { Response } from 'express';
 import { WebResponse } from "../../utils/webResponse";
 import { LoginUserDto } from "../../dto/loginUser.dto";
 import {AuthGuard} from "./auth.guard";
-import {ApiBody, ApiTags} from "@nestjs/swagger";
+import {ApiBody, ApiConsumes, ApiTags} from "@nestjs/swagger";
 import {CreateStarlingDto} from "../../dto/createStarling.dto";
+import {Express} from "express";
+import {FileInterceptor} from "@nestjs/platform-express";
 
 @Controller("auth")
 @ApiTags("auth - user")
@@ -71,10 +73,15 @@ export class AuthController{
         description: 'user login',
         type: CreateStarlingDto
     })
-    async registerStarling(@Body() createStarlingUserDto: CreateStarlingDto, @Res() res: Response ){
-        const result = await this.authService.registerStarling(createStarlingUserDto);
-        return res.status(HttpStatus.CREATED)
-            .json(new WebResponse(HttpStatus.CREATED, "success, please wait approved from admin", result, null));
+    @ApiConsumes("multipart/form-data")
+    @UseInterceptors(FileInterceptor('image'))
+    async registerStarling(@UploadedFile()  image: Express.Multer.File,@Body() createStarlingUserDto: CreateStarlingDto, @Res() res: Response ){
+        return "belum selesai di kerjain backend nya wkwk"
+        // const result = await this.authService.registerStarling(createStarlingUserDto, image);
+
+
+        // return res.status(HttpStatus.CREATED)
+        //     .json(new WebResponse(HttpStatus.CREATED, "success, please wait approved from admin", result, null));
 
     }
 

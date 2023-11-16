@@ -1,4 +1,4 @@
-import { IsEmail, IsStrongPassword, MaxLength } from "class-validator";
+import {IsEmail, IsNotEmpty, IsStrongPassword, MaxLength} from "class-validator";
 import {ApiProperty} from "@nestjs/swagger";
 
 export class CreateUserDto {
@@ -10,6 +10,13 @@ export class CreateUserDto {
         format: 'email',
     })
     email: String
+
+    @IsNotEmpty()
+    @ApiProperty({
+        type: 'string'
+    })
+    name: String
+
 
     @MaxLength(40, {
         message: `password is too long, maximum length is $constraint1`

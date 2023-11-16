@@ -146,13 +146,14 @@ export class AuthService{
         return {
             email: user.email,
             hash: bcrypt.hashSync(user.password.toString(), 10),
+            name: user.name,
             createdAt: new Date(Date.now()),
             updatedAt: null,
             verified: false
         }
     }
 
-    async registerStarling(createStarlingUserDto: CreateStarlingDto) {
+    async registerStarling(createStarlingUserDto: CreateStarlingDto, image: Express.Multer.File) {
         const userDb = await this.userModel.findOne({email: createStarlingUserDto.email})
 
         if(!userDb){
@@ -164,32 +165,35 @@ export class AuthService{
             throw new BadRequestException("email and password doesn't match")
         }
 
-        const createdStarling = {
-            userId: userDb._id,
-            starlingName: createStarlingUserDto.starlingName,
-            longitude: createStarlingUserDto.longitude,
-            latitude: createStarlingUserDto.latitude,
-            lastUpdate: new Date(),
-            image: createStarlingUserDto.image,
-            verified: false
-        }
+        console.log("image", image)
 
-        // save starling form
 
-        const starlingDb = await this.starlingModel.findOne({userId: userDb._id});
-        if(starlingDb){
-            if(starlingDb.verified){
-                throw new BadRequestException("starling already exists, wait for approved from admin")
-            }
-            throw new BadRequestException("starling already registered");
-        }
-
-        try{
-            const starling = new this.starlingModel(createdStarling)
-            await starling.save();
-        }catch (err){
-            console.log(`something error when create starling : ${err}`)
-        }
+        // const createdStarling = {
+        //     userId: userDb._id,
+        //     starlingName: createStarlingUserDto.starlingName,
+        //     longitude: createStarlingUserDto.longitude,
+        //     latitude: createStarlingUserDto.latitude,
+        //     lastUpdate: new Date(),
+        //     image: createStarlingUserDto.image,
+        //     verified: false
+        // }
+        //
+        // // save starling form
+        //
+        // const starlingDb = await this.starlingModel.findOne({userId: userDb._id});
+        // if(starlingDb){
+        //     if(starlingDb.verified){
+        //         throw new BadRequestException("starling already exists, wait for approved from admin")
+        //     }
+        //     throw new BadRequestException("starling already registered");
+        // }
+        //
+        // try{
+        //     const starling = new this.starlingModel(createdStarling)
+        //     await starling.save();
+        // }catch (err){
+        //     console.log(`something error when create starling : ${err}`)
+        // }
 
     }
 }

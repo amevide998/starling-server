@@ -1,5 +1,5 @@
 import {IsEmail, IsNotEmpty, IsStrongPassword, MaxLength} from "class-validator";
-import {ApiProperty} from "@nestjs/swagger";
+import {ApiProperty, ApiPropertyOptional} from "@nestjs/swagger";
 
 export class CreateStarlingDto {
     @ApiProperty({
@@ -25,20 +25,21 @@ export class CreateStarlingDto {
     @IsNotEmpty()
     starlingName: String
 
-    @ApiProperty({
+    @ApiPropertyOptional({
         type: 'number'
     })
-    @IsNotEmpty()
     longitude : number
-    @ApiProperty({
+    @ApiPropertyOptional({
         type: 'number'
     })
-    @IsNotEmpty()
     latitude : number
 
-    @IsNotEmpty()
-    @ApiProperty({
+    @ApiPropertyOptional({
         type: 'string'
     })
-    image : string
+    image_url? : string
+
+
+    @ApiPropertyOptional({ type: 'string', format: 'binary' })
+    image?: any;
 }
