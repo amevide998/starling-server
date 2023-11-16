@@ -39,7 +39,4 @@ $ npm run test:cov
 - Developer - [iqrom](https://github.com/iqrom25)
 - Developer - [vidi](https://github.com/amevide998)
 
-## License
-
-  Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
 # starling-server
