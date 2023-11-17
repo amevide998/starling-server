@@ -12,6 +12,9 @@ import { JwtService } from "@nestjs/jwt";
 import {CreateStarlingDto} from "../../dto/createStarling.dto";
 import {Starling} from "./starling/starling.interface";
 import {FirebaseStorageService} from "../../utils/firebaseStorage";
+import {OtpVerifyDto} from "../../dto/otpVerify.dto";
+import {Otp} from "./otp/otp.interface";
+import sendOtp from "./email-verification/sendOtp";
 
 @Injectable()
 export class AuthService{
@@ -24,6 +27,9 @@ export class AuthService{
 
         @Inject('STARLING_MODEL')
         private starlingModel: Model<Starling>,
+
+        @Inject('OTP_MODEL')
+        private otpModel: Model<Otp>,
 
         private jwtService: JwtService,
 
@@ -43,23 +49,43 @@ export class AuthService{
         const user = await createdUser.save();
 
         // send email verification
+        // try{
+        //     const uniqueString = v4() + user._id.toString();
+        //     const emailVerification: EmailVerification = {
+        //         userId: user._id.toString(),
+        //         uniqueString: uniqueString,
+        //         createdAt: Date.now(),
+        //         expiresAt: Date.now() + 21600000
+        //     }
+        //     // save verification to database
+        //     try{
+        //         await this.verificationModel.deleteMany({userId: user._id.toString()});
+        //         const createdEmailVerification = new this.verificationModel(emailVerification)
+        //         await createdEmailVerification.save();
+        //     }catch (err){
+        //         console.error(`something error while save email verification to database`)
+        //     }
+        //     await sendMail(user._id.toString(),uniqueString,user.email.toString())
+        // }catch (err){
+        //     console.error(`something wrong while send email :  ${err}`)
+        // }
+
+        // send otp
         try{
-            const uniqueString = v4() + user._id.toString();
-            const emailVerification: EmailVerification = {
-                userId: user._id.toString(),
-                uniqueString: uniqueString,
-                createdAt: Date.now(),
-                expiresAt: Date.now() + 21600000
+            const otp = this.generateOTP(5);
+            const otpVerification: Otp = {
+                email: user.email,
+                otp: otp
             }
             // save verification to database
             try{
-                await this.verificationModel.deleteMany({userId: user._id.toString()});
-                const createdEmailVerification = new this.verificationModel(emailVerification)
-                await createdEmailVerification.save();
+                await this.otpModel.deleteMany({email: user.email});
+                const createdOtpVerification = new this.otpModel(otpVerification)
+                await createdOtpVerification.save();
             }catch (err){
                 console.error(`something error while save email verification to database`)
             }
-            await sendMail(user._id.toString(),uniqueString,user.email.toString())
+            await sendOtp(user.email, otp)
         }catch (err){
             console.error(`something wrong while send email :  ${err}`)
         }
@@ -96,6 +122,21 @@ export class AuthService{
             await this.userModel.findByIdAndUpdate(userDb._id, {verified: true});
             await this.verificationModel.deleteMany({userId: userDb._id});
         }
+    }
+
+    async otpVerify(otpVerifyDto: OtpVerifyDto){
+        const dbOtp = await this.otpModel.findOne({email: otpVerifyDto.email});
+        if(!dbOtp){
+            throw new NotFoundException(`verification not found`);
+        }
+
+        if(dbOtp.otp !== otpVerifyDto.otp){
+            throw new BadRequestException(`otp not match`);
+        }
+
+        await this.otpModel.deleteMany({email: otpVerifyDto.email});
+        await this.userModel.findOneAndUpdate({email: otpVerifyDto.email}, {verified: true});
+
     }
 
     async signin(request: LoginUserDto){
@@ -202,5 +243,17 @@ export class AuthService{
             console.log(`something error when create starling : ${err}`)
         }
 
+    }
+
+    generateOTP(limit: number) {
+
+        // Declare a digits variable
+        // which stores all digits
+        const digits = '0123456789';
+        let OTP = '';
+        for (let i = 0; i < limit; i++ ) {
+            OTP += digits[Math.floor(Math.random() * 10)];
+        }
+        return OTP;
     }
 }

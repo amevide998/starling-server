@@ -21,6 +21,7 @@ import {CreateStarlingDto} from "../../dto/createStarling.dto";
 import {Express} from "express";
 import {FileInterceptor} from "@nestjs/platform-express";
 import {FirebaseStorageService} from "../../utils/firebaseStorage";
+import {OtpVerifyDto} from "../../dto/otpVerify.dto";
 
 @Controller("auth")
 @ApiTags("auth - user")
@@ -50,7 +51,23 @@ export class AuthController{
             return res.status(HttpStatus.OK)
                 .json(new WebResponse(HttpStatus.OK, "verification success", null, null));
         }catch (err){
-            throw new InternalServerErrorException(`Something bad happen`);
+            throw new HttpException(err.message, err.status);
+        }
+    }
+
+
+    @Post("otpVerify")
+    @ApiBody({
+        description: 'verify otp',
+        type: OtpVerifyDto
+    })
+    async otpVerify(@Body() otpVerifyDto: OtpVerifyDto ,@Res() res: Response ){
+        try{
+            await this.authService.otpVerify(otpVerifyDto);
+            return res.status(HttpStatus.OK)
+                .json(new WebResponse(HttpStatus.OK, "verification success", null, null));
+        }catch (err){
+            throw new HttpException(err.message, err.status);
         }
     }
 

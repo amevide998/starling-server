@@ -9,6 +9,7 @@ import { jwtConstants } from "./constant";
 import {starlingProviders} from "./starling/starling.providers";
 import {FirebaseStorageService} from "../../utils/firebaseStorage";
 import {MulterModule} from "@nestjs/platform-express";
+import {otpProviders} from "./otp/otp.providers";
 
 @Module({
     imports: [
@@ -24,6 +25,6 @@ import {MulterModule} from "@nestjs/platform-express";
         })
     ],
     controllers : [AuthController],
-    providers : [AuthService, ...authProviders, ...emailVerificationProviders, ...starlingProviders,FirebaseStorageService]
+    providers : [AuthService,...otpProviders ,...authProviders, ...emailVerificationProviders, ...starlingProviders,FirebaseStorageService]
 })
 export class AuthModule{}
