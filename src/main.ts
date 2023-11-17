@@ -14,6 +14,7 @@ async function bootstrap() {
       .setDescription('documentation for starling api')
       .setVersion('1.0')
       .addTag('starling')
+      .addBearerAuth()
       .build()
 
   const document = SwaggerModule.createDocument(app, config)

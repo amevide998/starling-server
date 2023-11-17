@@ -1,20 +1,20 @@
 import { BadRequestException, Inject, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import {Model, Schema} from "mongoose";
-import { User } from "./user/user.interface";
+import { User } from "../user/user.interface";
 import { CreateUserDto } from "../../dto/createUser.dto";
 import * as bcrypt from 'bcrypt';
 import { CreateUserResponseDto } from "../../dto/createUserResponse.dto";
-import sendMail from "./email-verification/sendmail";
-import { EmailVerification } from "./email-verification/emailVerification.interface";
+import sendMail from "../email-verification/sendmail";
+import { EmailVerification } from "../email-verification/emailVerification.interface";
 import { v4 } from "uuid";
 import { LoginUserDto } from "../../dto/loginUser.dto";
 import { JwtService } from "@nestjs/jwt";
 import {CreateStarlingDto} from "../../dto/createStarling.dto";
-import {Starling} from "./starling/starling.interface";
+import {Starling} from "../starling/starling.interface";
 import {FirebaseStorageService} from "../../utils/firebaseStorage";
 import {OtpVerifyDto} from "../../dto/otpVerify.dto";
-import {Otp} from "./otp/otp.interface";
-import sendOtp from "./email-verification/sendOtp";
+import {Otp} from "../otp/otp.interface";
+import sendOtp from "../email-verification/sendOtp";
 
 @Injectable()
 export class AuthService{
@@ -150,29 +150,53 @@ export class AuthService{
         if(bcrypt.compareSync(request.password.toString(), userDb.hash.toString())){
             console.log(`password match user - ${request.email}`);
 
+            // try{
+            //     const uniqueString = v4() + userDb._id.toString();
+            //     const emailVerification: EmailVerification = {
+            //         userId: userDb._id.toString(),
+            //         uniqueString: uniqueString,
+            //         createdAt: Date.now(),
+            //         expiresAt: Date.now() + 21600000
+            //     }
+            //     // save verification to database
+            //     try{
+            //         await this.verificationModel.deleteMany({userId: userDb._id.toString()});
+            //         const createdEmailVerification = new this.verificationModel(emailVerification)
+            //         await createdEmailVerification.save();
+            //     }catch (err){
+            //         console.error(`something error while save email verification to database`)
+            //     }
+            //     await sendMail(userDb._id.toString(),uniqueString,userDb.email.toString())
+            // }catch (err){
+            //     console.error(`something wrong while send email :  ${err}`)
+            // }
+            //
+            // if(!userDb.verified){
+            //     throw new UnauthorizedException(`email is not verified , another verify has been send to your email`);
+            // }
+
+
             try{
-                const uniqueString = v4() + userDb._id.toString();
-                const emailVerification: EmailVerification = {
-                    userId: userDb._id.toString(),
-                    uniqueString: uniqueString,
-                    createdAt: Date.now(),
-                    expiresAt: Date.now() + 21600000
+                const otp = this.generateOTP(5);
+                const otpVerification: Otp = {
+                    email: request.email,
+                    otp: otp
                 }
                 // save verification to database
                 try{
-                    await this.verificationModel.deleteMany({userId: userDb._id.toString()});
-                    const createdEmailVerification = new this.verificationModel(emailVerification)
-                    await createdEmailVerification.save();
+                    await this.otpModel.deleteMany({email: request.email});
+                    const createdOtpVerification = new this.otpModel(otpVerification)
+                    await createdOtpVerification.save();
                 }catch (err){
                     console.error(`something error while save email verification to database`)
                 }
-                await sendMail(userDb._id.toString(),uniqueString,userDb.email.toString())
+                await sendOtp(request.email, otp)
             }catch (err){
                 console.error(`something wrong while send email :  ${err}`)
             }
 
             if(!userDb.verified){
-                throw new UnauthorizedException(`email is not verified , another verify has been send to your email`);
+                throw new UnauthorizedException(`email is not verified , another otp has been send to your email`);
             }
 
             const payload = {sub: userDb._id, email: userDb.email};
