@@ -31,7 +31,9 @@ export default async function sendMail (_id: string, uniqueString:string, email:
             <h2>Verify Your Email Address</h2>
           <p>Dear ${email.split( '@')[0].toString()},</p>
           <p>Thank you for signing up with starling comunity . To ensure the security of your account, please click the following link to verify your email address:</p>
-          <p><a href=${currentUrl + "/auth/verify/" + _id + "/" + uniqueString} style="background-color: #007BFF; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Verify Email</a></p>
+          <p><div style="background-color: #007BFF; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 4px;">
+          link : ${currentUrl + "/auth/verify/" + _id + "/" + uniqueString}
+          </div></p>
           <p>If you did not create an account with starling commnity , you can safely ignore this email.</p>
           <p>Thank you for your registration !</p>
           <p>Best regards,<br>The Lingkungan Kumuh Team</p>
