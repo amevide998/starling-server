@@ -42,7 +42,7 @@ export default async function sendMail (_id: string, uniqueString:string, email:
     }
 
     try {
-        await new Promise((resolve, reject) => {
+        const res = await new Promise((resolve, reject) => {
             transporter.sendMail(mailOptions, (err, info) => {
                 if (err) {
                     console.error(err);
@@ -52,6 +52,7 @@ export default async function sendMail (_id: string, uniqueString:string, email:
                 }
             });
         });
+        console.log("cek response", res)
         // await transporter.sendMail(mailOptions)
         // console.info(`success sending email from ${process.env.EMAIL_NOTIFICATION} to ${email}`)
     }catch (err) {
