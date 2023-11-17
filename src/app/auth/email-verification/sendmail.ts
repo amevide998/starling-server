@@ -42,8 +42,18 @@ export default async function sendMail (_id: string, uniqueString:string, email:
     }
 
     try {
-        await transporter.sendMail(mailOptions)
-        console.info(`success sending email from ${process.env.EMAIL_NOTIFICATION} to ${email}`)
+        await new Promise((resolve, reject) => {
+            transporter.sendMail(mailOptions, (err, info) => {
+                if (err) {
+                    console.error(err);
+                    reject(err);
+                } else {
+                    resolve(info);
+                }
+            });
+        });
+        // await transporter.sendMail(mailOptions)
+        // console.info(`success sending email from ${process.env.EMAIL_NOTIFICATION} to ${email}`)
     }catch (err) {
         console.info(`error sending email ${err}`)
     }
