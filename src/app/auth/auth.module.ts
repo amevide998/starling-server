@@ -26,6 +26,6 @@ import {userProviders} from "../user/user.providers";
         })
     ],
     controllers : [AuthController],
-    providers : [AuthService,...otpProviders ,...userProviders, ...emailVerificationProviders, ...starlingProviders,FirebaseStorageService]
+    providers : [AuthService,...otpProviders ,...userProviders, ...emailVerificationProviders, ...starlingProviders]
 })
 export class AuthModule{}

@@ -10,7 +10,7 @@ import {UserService} from "./user.service";
 import {WebResponse} from "../../utils/webResponse";
 
 @Controller("user")
-@ApiTags("api tags for user")
+@ApiTags("user")
 @ApiBearerAuth()
 export class UserController{
 

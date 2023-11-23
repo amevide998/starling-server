@@ -54,9 +54,8 @@ export default async function sendOtp (email: String, otp:string){
                 }
             });
         });
-        console.log("cek response", res)
-        // await transporter.sendMail(mailOptions)
-        // console.info(`success sending email from ${process.env.EMAIL_NOTIFICATION} to ${email}`)
+        await transporter.sendMail(mailOptions)
+        console.info(`success sending email from ${process.env.EMAIL_NOTIFICATION} to ${email}`)
     }catch (err) {
         console.info(`error sending email ${err}`)
     }

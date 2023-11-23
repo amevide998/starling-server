@@ -83,23 +83,6 @@ export class AuthController{
             .json(new WebResponse(HttpStatus.OK, "success login", token, null))
     }
 
-    @Post("register-starling")
-    @HttpCode(HttpStatus.CREATED)
-    @UsePipes(new ValidationPipe({transform: true}))
-    @ApiBody({
-        description: 'user login',
-        type: CreateStarlingDto
-    })
-    @ApiConsumes("multipart/form-data")
-    @UseInterceptors(FileInterceptor('image'))
-    async registerStarling(@UploadedFile()  image: Express.Multer.File ,@Body() createStarlingUserDto: CreateStarlingDto, @Res() res: Response ){
-        // return "belum selesai di kerjain backend nya wkwk"
-        const result = await this.authService.registerStarling(createStarlingUserDto, image);
-
-        return res.status(HttpStatus.CREATED)
-            .json(new WebResponse(HttpStatus.CREATED, "success, please wait approved from admin", result, null));
-
-    }
 
 
 }

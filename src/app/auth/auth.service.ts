@@ -33,8 +33,6 @@ export class AuthService{
 
         private jwtService: JwtService,
 
-        private readonly firebaseStorage: FirebaseStorageService
-
     ) {}
     async create(createUserDto: CreateUserDto): Promise<CreateUserResponseDto>{
 
@@ -111,9 +109,7 @@ export class AuthService{
         }
 
         // cek expires uniqueString
-        console.debug(`verify user, cek email verification createdAt: ${uniqueStringDb.createdAt}, expiresAt: ${uniqueStringDb.expiresAt}`);
         if (Date.now() > uniqueStringDb.expiresAt){
-            console.info(`email verification expires, user email : ${userDb.email}`);
             await this.verificationModel.deleteMany({userId: userDb._id})
             await this.userModel.deleteMany({email: userDb.email})
             throw new BadRequestException(`email verification has been expired, please sign up again`);
@@ -148,8 +144,6 @@ export class AuthService{
 
         // cek password
         if(bcrypt.compareSync(request.password.toString(), userDb.hash.toString())){
-            console.log(`password match user - ${request.email}`);
-
             // try{
             //     const uniqueString = v4() + userDb._id.toString();
             //     const emailVerification: EmailVerification = {
@@ -176,26 +170,26 @@ export class AuthService{
             // }
 
 
-            try{
-                const otp = this.generateOTP(5);
-                const otpVerification: Otp = {
-                    email: request.email,
-                    otp: otp
-                }
-                // save verification to database
-                try{
-                    await this.otpModel.deleteMany({email: request.email});
-                    const createdOtpVerification = new this.otpModel(otpVerification)
-                    await createdOtpVerification.save();
-                }catch (err){
-                    console.error(`something error while save email verification to database`)
-                }
-                await sendOtp(request.email, otp)
-            }catch (err){
-                console.error(`something wrong while send email :  ${err}`)
-            }
-
             if(!userDb.verified){
+                try{
+                    const otp = this.generateOTP(5);
+                    const otpVerification: Otp = {
+                        email: request.email,
+                        otp: otp
+                    }
+                    // save verification to database
+                    try{
+                        await this.otpModel.deleteMany({email: request.email});
+                        const createdOtpVerification = new this.otpModel(otpVerification)
+                        await createdOtpVerification.save();
+                    }catch (err){
+                        console.error(`something error while save email verification to database`)
+                    }
+                    await sendOtp(request.email, otp)
+                }catch (err){
+                    console.error(`something wrong while send email :  ${err}`)
+                }
+
                 throw new UnauthorizedException(`email is not verified , another otp has been send to your email`);
             }
 
@@ -205,9 +199,7 @@ export class AuthService{
                 accessToken: await this.jwtService.signAsync(payload)
             }
 
-
         }else {
-            console.log(`password dont macth - ${request.email}`);
             throw new BadRequestException(`email & password doesn't match`);
 
         }
@@ -224,50 +216,7 @@ export class AuthService{
         }
     }
 
-    async registerStarling(createStarlingUserDto: CreateStarlingDto, image: Express.Multer.File) {
-        const userDb = await this.userModel.findOne({email: createStarlingUserDto.email})
 
-        if(!userDb){
-            throw new NotFoundException("email and password doesn't match")
-        }
-
-        // verify password
-        if(!bcrypt.compareSync(createStarlingUserDto.password.toString(), userDb.hash.toString())){
-            throw new BadRequestException("email and password doesn't match")
-        }
-
-        const img_url = await this.firebaseStorage.uploadFile("starling-image", image) || createStarlingUserDto.image_url || "";
-
-
-
-        const createdStarling = {
-            userId: userDb._id,
-            starlingName: createStarlingUserDto.starlingName,
-            longitude: createStarlingUserDto.longitude,
-            latitude: createStarlingUserDto.latitude,
-            lastUpdate: new Date(),
-            image: img_url,
-            verified: false
-        }
-
-        // save starling form
-
-        const starlingDb = await this.starlingModel.findOne({userId: userDb._id});
-        if(starlingDb){
-            if(starlingDb.verified){
-                throw new BadRequestException("starling already exists, wait for approved from admin")
-            }
-            throw new BadRequestException("starling already registered");
-        }
-
-        try{
-            const starling = new this.starlingModel(createdStarling)
-            await starling.save();
-        }catch (err){
-            console.log(`something error when create starling : ${err}`)
-        }
-
-    }
 
     generateOTP(limit: number) {
 
