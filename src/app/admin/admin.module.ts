@@ -4,6 +4,7 @@ import {DatabaseModule} from "../../database/database.module";
 import {Module} from "@nestjs/common";
 import {AdminService} from "./admin.service";
 import {AdminController} from "./admin.controller";
+import {starlingProviders} from "../starling/starling.providers";
 
 @Module({
     imports: [
@@ -17,6 +18,6 @@ import {AdminController} from "./admin.controller";
         }),
     ],
     controllers : [AdminController],
-    providers : [AdminService]
+    providers : [AdminService, ...starlingProviders]
 })
 export class AdminModule{}
