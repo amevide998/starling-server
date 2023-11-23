@@ -34,4 +34,20 @@ export class AdminService{
         return this.starlingModel.find();
     }
 
+    async verify(starlingId){
+        const starling = await this.starlingModel.findById(starlingId);
+        if(!starling){
+            throw new BadRequestException("starling not found");
+        }
+
+        if(starling.verified){
+            throw new BadRequestException("starling already verified");
+        }
+        await this.starlingModel.updateOne({_id: starlingId}, {
+            verified: true
+        })
+
+        return starlingId
+    }
+
 }

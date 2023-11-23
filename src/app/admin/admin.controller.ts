@@ -2,8 +2,8 @@ import {
     Body,
     Controller,
     HttpCode,
-    HttpStatus,
-    Post,
+    HttpStatus, Param,
+    Post, Put,
     Req,
     Res,
     UseGuards,
@@ -47,6 +47,17 @@ export class AdminController{
         const result = await this.adminService.getAll();
         return res.status(HttpStatus.OK)
             .json(new WebResponse(HttpStatus.OK, "success", result, null));
+    }
+
+    @Put("verify-starling/:starlingId")
+    @UsePipes(new ValidationPipe({transform: true}))
+    @HttpCode(HttpStatus.OK)
+    @UseGuards(AdminGuard)
+    @ApiBearerAuth()
+    async verify(@Res() res: Response, @Param("starlingId") starlingId: string){
+        const starling = await this.adminService.verify(starlingId);
+        return res.status(HttpStatus.OK)
+            .json(new WebResponse(HttpStatus.OK, "verification success", starling, null));
     }
 
 
