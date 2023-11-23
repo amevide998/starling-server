@@ -2,19 +2,6 @@ import {IsEmail, IsNotEmpty, IsStrongPassword, MaxLength} from "class-validator"
 import {ApiProperty, ApiPropertyOptional} from "@nestjs/swagger";
 
 export class CreateStarlingDto {
-    @ApiProperty({
-        type: 'string',
-        format: 'email',
-    })
-    @IsNotEmpty()
-    email: String
-
-    @ApiProperty({
-        type: 'string',
-        format: 'password',
-    })
-    @IsNotEmpty()
-    password: String
 
     @ApiProperty({
         type: 'string'
