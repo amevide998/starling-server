@@ -38,6 +38,8 @@ export class StarlingController{
     })
     @ApiConsumes("multipart/form-data")
     @UseInterceptors(FileInterceptor('image'))
+    @UseGuards(AuthGuard)
+    @ApiBearerAuth()
     async registerStarling(@Req() req, @UploadedFile()  image: Express.Multer.File ,@Body() createStarlingUserDto: CreateStarlingDto, @Res() res: Response ){
         const user = {email: req.user.email}
         const result = await this.starlingService.registerStarling(createStarlingUserDto, image, user);
