@@ -16,9 +16,6 @@ import { Response } from 'express';
 import { WebResponse } from "../../utils/webResponse";
 import { LoginUserDto } from "../../dto/loginUser.dto";
 import {ApiBody, ApiConsumes, ApiTags} from "@nestjs/swagger";
-import {CreateStarlingDto} from "../../dto/createStarling.dto";
-import {Express} from "express";
-import {FileInterceptor} from "@nestjs/platform-express";
 import {OtpVerifyDto} from "../../dto/otpVerify.dto";
 
 @Controller("auth")
