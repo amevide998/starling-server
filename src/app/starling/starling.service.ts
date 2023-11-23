@@ -43,6 +43,15 @@ export class StarlingService{
             throw new NotFoundException("user not found")
         }
 
+        const starling = await this.starlingModel.findOne({userId: userDb._id});
+
+        if(starling){
+            if(!starling.verified){
+                throw new BadRequestException("starling already exists, wait for approved from admin")
+            }
+            throw new BadRequestException("starling already registered");
+        }
+
         const img_url = await this.firebaseStorage.uploadFile("starling-image", image) || createStarlingUserDto.image_url || "";
 
         const createdStarling = {
