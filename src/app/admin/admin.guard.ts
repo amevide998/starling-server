@@ -11,7 +11,7 @@ import {jwtConstants} from "../auth/constant";
 
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class AdminGuard implements CanActivate {
     constructor(private jwtService: JwtService) {}
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
