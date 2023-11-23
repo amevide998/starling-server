@@ -1,5 +1,16 @@
-import {Body, Controller, HttpCode, HttpStatus, Post, Res, UseGuards, UsePipes, ValidationPipe} from "@nestjs/common";
-import {ApiBody, ApiTags} from "@nestjs/swagger";
+import {
+    Body,
+    Controller,
+    HttpCode,
+    HttpStatus,
+    Post,
+    Req,
+    Res,
+    UseGuards,
+    UsePipes,
+    ValidationPipe
+} from "@nestjs/common";
+import {ApiBearerAuth, ApiBody, ApiTags} from "@nestjs/swagger";
 import {LoginAdminDto} from "../../dto/loginAdmin.dto";
 import { Response } from 'express';
 import {WebResponse} from "../../utils/webResponse";
@@ -30,11 +41,8 @@ export class AdminController{
     @Post("list")
     @UsePipes(new ValidationPipe({transform: true}))
     @HttpCode(HttpStatus.OK)
-    @ApiBody({
-        description: 'starling list',
-        type: LoginAdminDto
-    })
     @UseGuards(AdminGuard)
+    @ApiBearerAuth()
     async List(@Res() res: Response , @Req() request: any){
         const result = await this.adminService.getAll();
         return res.status(HttpStatus.OK)

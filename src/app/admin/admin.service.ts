@@ -1,11 +1,16 @@
 import {LoginAdminDto} from "../../dto/loginAdmin.dto";
 import 'dotenv/config'
 import {JwtService} from "@nestjs/jwt";
-import {BadRequestException, Injectable} from "@nestjs/common";
+import {BadRequestException, Inject, Injectable} from "@nestjs/common";
+import {Starling} from "../starling/starling.interface";
+import {Model} from "mongoose";
 
 @Injectable()
 export class AdminService{
     constructor(
+        @Inject('STARLING_MODEL')
+        private starlingModel: Model<Starling>,
+
         private jwtService: JwtService,
     ) {}
     async login(request: LoginAdminDto){
@@ -23,6 +28,10 @@ export class AdminService{
         return {
             accessToken: token
         }
+    }
+
+    async getAll(){
+        return this.starlingModel.find();
     }
 
 }
