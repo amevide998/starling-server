@@ -125,8 +125,13 @@ export class AuthService{
         }
 
         await this.otpModel.deleteMany({email: otpVerifyDto.email});
-        await this.userModel.findOneAndUpdate({email: otpVerifyDto.email}, {verified: true});
+        const userDb = await this.userModel.findOneAndUpdate({email: otpVerifyDto.email}, {verified: true});
 
+        const payload = {sub: userDb._id, email: userDb.email};
+
+        return {
+            accessToken: await this.jwtService.signAsync(payload)
+        }
     }
 
     async signin(request: LoginUserDto){
