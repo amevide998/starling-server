@@ -1,6 +1,6 @@
 import {
     Body,
-    Controller, Get, HttpCode, HttpStatus, Post, Req,
+    Controller, Get, HttpCode, HttpStatus, Post, Put, Req,
     Res, UploadedFile, UseGuards, UseInterceptors, UsePipes, ValidationPipe
 } from "@nestjs/common";
 import {Response, Request, Express} from 'express';
@@ -11,6 +11,7 @@ import {CreateStarlingDto} from "../../dto/createStarling.dto";
 import {FileInterceptor} from "@nestjs/platform-express";
 import {WebResponse} from "../../utils/webResponse";
 import {StarlingService} from "./starling.service";
+import {UpdateStarlingDto} from "../../dto/updateStarling.dto";
 
 @Controller("starling")
 @ApiTags("starling")
@@ -33,7 +34,7 @@ export class StarlingController{
     @HttpCode(HttpStatus.CREATED)
     @UsePipes(new ValidationPipe({transform: true}))
     @ApiBody({
-        description: 'user login',
+        description: 'register starling',
         type: CreateStarlingDto
     })
     @ApiConsumes("multipart/form-data")
@@ -48,5 +49,26 @@ export class StarlingController{
             .json(new WebResponse(HttpStatus.CREATED, "success, please wait approved from admin", result, null));
 
     }
+
+    @Put("update")
+    @HttpCode(HttpStatus.OK)
+    @UsePipes(new ValidationPipe({transform: true}))
+    @ApiBody({
+        description: 'update starling dto',
+        type: UpdateStarlingDto
+    })
+    @ApiConsumes("multipart/form-data")
+    @UseInterceptors(FileInterceptor('image'))
+    @UseGuards(AuthGuard)
+    @ApiBearerAuth()
+    async updateStarling(@Req() req, @UploadedFile()  image: Express.Multer.File ,@Body() updateStarlingUserDto: UpdateStarlingDto, @Res() res: Response ){
+        const user = {email: req.user.email}
+        const result = await this.starlingService.updateStarling(updateStarlingUserDto, image, user);
+
+        return res.status(HttpStatus.OK)
+            .json(new WebResponse(HttpStatus.OK, "success, please wait approved from admin", result, null));
+
+    }
+
 
 }
